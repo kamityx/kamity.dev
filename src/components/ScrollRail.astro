@@ -1,0 +1,139 @@
+<nav class="scroll-rail hidden" id="scroll-rail" aria-label="Navegação rápida por seção">
+  <ul class="scroll-rail-list" id="scroll-rail-list"></ul>
+</nav>
+
+<script is:inline>
+  (() => {
+    const rail = document.getElementById('scroll-rail');
+    const list = document.getElementById('scroll-rail-list');
+    if (!rail || !list) return;
+
+    function collectTargets() {
+      const explicit = Array.from(document.querySelectorAll('[data-rail-label]'));
+      if (explicit.length > 0) {
+        return explicit
+          .filter((el) => {
+            // Skip items hidden by tag filters (or inside a hidden parent)
+            return !el.closest('.hidden');
+          })
+          .map((el, idx) => {
+            if (!el.id) el.id = `rail-item-${idx}`;
+            return {
+              el,
+              id: el.id,
+              label: el.getAttribute('data-rail-label') || '',
+              level: el.getAttribute('data-rail-level') || 'minor',
+            };
+          });
+      }
+
+      // Fallback for article pages: h2/h3 headings inside .prose
+      const headings = Array.from(document.querySelectorAll('.prose h2, .prose h3'));
+      return headings.map((el, idx) => {
+        if (!el.id) el.id = `sec-${idx}`;
+        return {
+          el,
+          id: el.id,
+          label: (el.textContent || '').trim(),
+          level: el.tagName === 'H2' ? 'major' : 'minor',
+        };
+      });
+    }
+
+    let items = [];
+    let buttons = [];
+
+    function rebuild() {
+      items = collectTargets();
+      list.textContent = '';
+      buttons = [];
+
+      if (items.length < 2) {
+        rail.classList.add('hidden');
+        return;
+      }
+
+      rail.classList.remove('hidden');
+
+      for (const item of items) {
+        const li = document.createElement('li');
+        li.className = `rail-entry rail-${item.level}`;
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'rail-btn';
+        btn.setAttribute('aria-label', item.label);
+
+        const labelSpan = document.createElement('span');
+        labelSpan.className = 'rail-label';
+        labelSpan.textContent = item.label;
+
+        const tickSpan = document.createElement('span');
+        tickSpan.className = 'rail-tick';
+
+        btn.append(labelSpan, tickSpan);
+        btn.addEventListener('click', () => {
+          item.el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+
+        li.appendChild(btn);
+        list.appendChild(li);
+        buttons.push({ btn, el: item.el });
+      }
+
+      updateActive();
+    }
+
+    let rafPending = false;
+
+    function updateActive() {
+      rafPending = false;
+      if (!buttons.length) return;
+
+      const offset = window.innerHeight * 0.28;
+      let activeIdx = 0;
+
+      // If scrolled near bottom of document, highlight the last item
+      const atBottom =
+        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 24;
+      if (atBottom) {
+        activeIdx = buttons.length - 1;
+      } else {
+        for (let i = 0; i < buttons.length; i += 1) {
+          const rect = buttons[i].el.getBoundingClientRect();
+          if (rect.top <= offset) {
+            activeIdx = i;
+          } else {
+            break;
+          }
+        }
+      }
+
+      buttons.forEach((entry, idx) => {
+        entry.btn.classList.toggle('active', idx === activeIdx);
+      });
+    }
+
+    function onScroll() {
+      if (!rafPending) {
+        rafPending = true;
+        requestAnimationFrame(updateActive);
+      }
+    }
+
+    rebuild();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+
+    // Rebuild ticks automatically when tag filters toggle `.hidden`
+    const main = document.querySelector('main');
+    if (main) {
+      const observer = new MutationObserver(() => rebuild());
+      observer.observe(main, {
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['class'],
+      });
+    }
+  })();
+</script>

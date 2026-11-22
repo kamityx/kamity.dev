@@ -17,6 +17,14 @@ import Callout from '../../components/Callout.astro';
 
 Descreva aqui o problema concreto que apareceu durante a troca de nó entre instâncias do servidor.
 
+```mermaid
+flowchart LR
+  A["Nó A (Origem)"] -->|"1. commit tx"| B["PostgreSQL"]
+  A -->|"2. Lua DEL lock"| C["Valkey"]
+  D["Nó B (Destino)"] -->|"3. SET NX EX"| C
+  D -->|"4. load snapshot"| B
+```
+
 ## Exemplo de bloco de código Rust
 
 ```rust

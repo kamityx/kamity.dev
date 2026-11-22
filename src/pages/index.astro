@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import ScrollRail from '../components/ScrollRail.astro';
 import { SITE } from '../config';
 import {
   estimateReadingTime,
@@ -70,7 +71,11 @@ const tags = getAllTags(posts);
             id={`mes-${group.key}`}
             data-month-group={group.key}
           >
-            <div class="month-header">
+            <div
+              class="month-header"
+              data-rail-label={`${group.monthLabel} ${group.year}`}
+              data-rail-level="major"
+            >
               <h2 class="month-title">
                 {group.monthLabel}
                 <span>{group.year}</span>
@@ -88,7 +93,14 @@ const tags = getAllTags(posts);
                 return (
                   <li
                     class="post-item"
+                    id={`post-${slug}`}
                     data-post-tags={post.data.tags.join(',')}
+                    data-rail-label={
+                      post.data.title.length > 34
+                        ? `${post.data.title.slice(0, 32)}…`
+                        : post.data.title
+                    }
+                    data-rail-level="minor"
                   >
                     <div class="post-day">{formatDayShort(post.data.pubDate)}</div>
                     <div class="post-body">
@@ -126,6 +138,8 @@ const tags = getAllTags(posts);
       }
     </div>
   </main>
+
+  <ScrollRail />
 </BaseLayout>
 
 <script is:inline>

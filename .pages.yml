@@ -48,6 +48,17 @@ content:
       - name: linkedinUrl
         label: Link do post no LinkedIn (opcional)
         type: string
+      - name: faq
+        label: Perguntas frequentes / AEO (opcional)
+        type: object
+        list: true
+        fields:
+          - name: question
+            label: Pergunta
+            type: string
+          - name: answer
+            label: Resposta direta
+            type: text
       - name: draft
         label: Rascunho (oculto em produção)
         type: boolean

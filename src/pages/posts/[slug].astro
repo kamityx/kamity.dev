@@ -3,12 +3,15 @@ import { render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MermaidEnhancer from '../../components/MermaidEnhancer.astro';
 import ScrollRail from '../../components/ScrollRail.astro';
+import SeoJsonLd from '../../components/SeoJsonLd.astro';
 import { SITE } from '../../config';
 import {
+  countWords,
   estimateReadingTime,
   formatFullDate,
   getPostSlug,
   getPublishedPosts,
+  getRelatedPosts,
   getSeriesPosts,
 } from '../../lib/posts';
 
@@ -23,12 +26,16 @@ export async function getStaticPaths() {
 const { post, allPosts } = Astro.props;
 const slug = getPostSlug(post);
 const { Content, headings } = await render(post);
+const wordCount = countWords(post.body);
 const readMin = estimateReadingTime(post.body);
 const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
 
 const seriesPosts = post.data.series
   ? getSeriesPosts(allPosts, post.data.series.name)
   : [];
+
+const relatedPosts = getRelatedPosts(allPosts, post, 3);
+const faqItems = post.data.faq ?? [];
 
 const linkedinHref = post.data.linkedinUrl ?? SITE.linkedin;
 ---
@@ -39,9 +46,24 @@ const linkedinHref = post.data.linkedinUrl ?? SITE.linkedin;
   ogImage={`/og/${slug}.png`}
   ogType="article"
   publishedTime={post.data.pubDate}
+  updatedTime={post.data.updatedDate}
+  markdownAlternate={`/posts/${slug}.md`}
   activeNav="home"
   showProgress={true}
 >
+  <SeoJsonLd
+    slot="head"
+    type="article"
+    title={post.data.title}
+    description={post.data.description}
+    slug={slug}
+    pubDate={post.data.pubDate}
+    updatedDate={post.data.updatedDate}
+    tags={post.data.tags}
+    wordCount={wordCount}
+    ogImage={`/og/${slug}.png`}
+    faq={faqItems}
+  />
   <article data-pagefind-body>
     <a class="back-link" href="/" data-pagefind-ignore>← voltar para artigos</a>
 
@@ -103,6 +125,22 @@ const linkedinHref = post.data.linkedinUrl ?? SITE.linkedin;
     </div>
 
     {
+      faqItems.length > 0 && (
+        <section class="faq-section" aria-label="Perguntas frequentes">
+          <h2 class="faq-heading">Perguntas frequentes</h2>
+          <div class="faq-list">
+            {faqItems.map((item) => (
+              <details class="faq-item">
+                <summary>{item.question}</summary>
+                <p>{item.answer}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    {
       post.data.series && seriesPosts.length > 1 && (
         <section class="series-nav" data-pagefind-ignore>
           <div class="series-nav-title">
@@ -127,8 +165,30 @@ const linkedinHref = post.data.linkedinUrl ?? SITE.linkedin;
       )
     }
 
+    {
+      relatedPosts.length > 0 && (
+        <section class="related-posts" data-pagefind-ignore>
+          <div class="related-title">Artigos relacionados</div>
+          <ul>
+            {relatedPosts.map((rel) => {
+              const relSlug = getPostSlug(rel);
+              return (
+                <li>
+                  <a href={`/posts/${relSlug}/`}>{rel.data.title}</a>
+                  <span>{formatFullDate(rel.data.pubDate)}</span>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )
+    }
+
     <footer class="article-footer" data-pagefind-ignore>
-      <span>Escrito por {SITE.shortAuthor}</span>
+      <span>
+        Escrito por {SITE.shortAuthor} ·{' '}
+        <a href={`/posts/${slug}.md`}>Markdown (.md)</a>
+      </span>
       <a href={linkedinHref} target="_blank" rel="noopener noreferrer">
         Discutir este post no LinkedIn →
       </a>

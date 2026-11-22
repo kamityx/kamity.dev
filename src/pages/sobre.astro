@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import SeoJsonLd from '../components/SeoJsonLd.astro';
 import { SITE } from '../config';
 import { TALKS } from '../data/projects';
 ---
@@ -9,6 +10,12 @@ import { TALKS } from '../data/projects';
   description={`Sobre ${SITE.author}: sistemas distribuídos, arquitetura e engenharia de software.`}
   activeNav="about"
 >
+  <SeoJsonLd
+    slot="head"
+    type="about"
+    title={`Sobre — ${SITE.name}`}
+    description={`Sobre ${SITE.author}: sistemas distribuídos, arquitetura e engenharia de software.`}
+  />
   <main class="about">
     <h1>Sobre</h1>
     <p>

@@ -1,0 +1,212 @@
+---
+import { SITE } from '../config';
+import { PROJECTS, type ProjectItem } from '../data/projects';
+
+interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+interface Props {
+  type: 'home' | 'about' | 'projects' | 'article';
+  title?: string;
+  description?: string;
+  slug?: string;
+  pubDate?: Date;
+  updatedDate?: Date;
+  tags?: string[];
+  wordCount?: number;
+  ogImage?: string;
+  faq?: FaqItem[];
+}
+
+const {
+  type,
+  title = SITE.title,
+  description = SITE.description,
+  slug,
+  pubDate,
+  updatedDate,
+  tags = [],
+  wordCount,
+  ogImage = '/og/default.png',
+  faq = [],
+} = Astro.props;
+
+const siteUrl = SITE.url.replace(/\/$/, '');
+const personId = `${siteUrl}/#person`;
+const websiteId = `${siteUrl}/#website`;
+const pageUrl = new URL(Astro.url.pathname, SITE.url).href;
+const imageUrl = new URL(ogImage, SITE.url).href;
+
+const personNode = {
+  '@type': 'Person',
+  '@id': personId,
+  name: SITE.shortAuthor,
+  alternateName: ['Kamity', SITE.author],
+  url: `${siteUrl}/`,
+  email: `mailto:${SITE.email}`,
+  jobTitle: 'Senior Software Engineer',
+  description: SITE.description,
+  worksFor: {
+    '@type': 'Organization',
+    name: 'Luizalabs',
+    url: 'https://luizalabs.com',
+  },
+  alumniOf: {
+    '@type': 'CollegeOrUniversity',
+    name: 'Centro Universitário da Grande Dourados (UNIGRAN)',
+    url: 'https://www.unigran.br',
+  },
+  knowsAbout: [
+    'Distributed Systems',
+    'Software Architecture',
+    'Domain-Driven Design',
+    'Clean Architecture',
+    'Java',
+    'Spring Boot',
+    'Quarkus',
+    'TypeScript',
+    'Node.js',
+    'Rust',
+    'PostgreSQL',
+    'Valkey',
+    'RabbitMQ',
+    'Cloud Computing',
+    'FinOps',
+  ],
+  sameAs: [SITE.github, SITE.linkedin, 'https://mitgot.com'],
+};
+
+const websiteNode = {
+  '@type': 'WebSite',
+  '@id': websiteId,
+  url: `${siteUrl}/`,
+  name: SITE.name,
+  description: SITE.description,
+  inLanguage: 'pt-BR',
+  author: { '@id': personId },
+  publisher: { '@id': personId },
+};
+
+const graph: Record<string, unknown>[] = [personNode, websiteNode];
+
+if (type === 'home') {
+  graph.push({
+    '@type': 'Blog',
+    '@id': `${siteUrl}/#blog`,
+    url: `${siteUrl}/`,
+    name: SITE.name,
+    description: SITE.description,
+    inLanguage: 'pt-BR',
+    author: { '@id': personId },
+    isPartOf: { '@id': websiteId },
+  });
+}
+
+if (type === 'about') {
+  graph.push(
+    {
+      '@type': 'ProfilePage',
+      '@id': `${pageUrl}#profile`,
+      url: pageUrl,
+      name: title,
+      description,
+      inLanguage: 'pt-BR',
+      mainEntity: { '@id': personId },
+      isPartOf: { '@id': websiteId },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Início', item: `${siteUrl}/` },
+        { '@type': 'ListItem', position: 2, name: 'Sobre', item: pageUrl },
+      ],
+    },
+  );
+}
+
+if (type === 'projects') {
+  graph.push(
+    {
+      '@type': 'CollectionPage',
+      '@id': `${pageUrl}#collection`,
+      url: pageUrl,
+      name: title,
+      description,
+      inLanguage: 'pt-BR',
+      author: { '@id': personId },
+      isPartOf: { '@id': websiteId },
+      mainEntity: {
+        '@type': 'ItemList',
+        itemListElement: PROJECTS.map((p: ProjectItem, index: number) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          name: p.name,
+          description: p.summary,
+          ...(p.url ? { url: p.url } : {}),
+        })),
+      },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Início', item: `${siteUrl}/` },
+        { '@type': 'ListItem', position: 2, name: 'Projetos', item: pageUrl },
+      ],
+    },
+  );
+}
+
+if (type === 'article' && slug && pubDate) {
+  const articleUrl = `${siteUrl}/posts/${slug}/`;
+  graph.push(
+    {
+      '@type': 'BlogPosting',
+      '@id': `${articleUrl}#article`,
+      url: articleUrl,
+      mainEntityOfPage: { '@type': 'WebPage', '@id': articleUrl },
+      headline: title,
+      description,
+      image: imageUrl,
+      inLanguage: 'pt-BR',
+      datePublished: pubDate.toISOString(),
+      dateModified: (updatedDate ?? pubDate).toISOString(),
+      ...(wordCount ? { wordCount } : {}),
+      ...(tags.length > 0 ? { keywords: tags.join(', ') } : {}),
+      author: { '@id': personId },
+      publisher: { '@id': personId },
+      isPartOf: { '@id': websiteId },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Início', item: `${siteUrl}/` },
+        { '@type': 'ListItem', position: 2, name: title, item: articleUrl },
+      ],
+    },
+  );
+
+  if (faq.length > 0) {
+    graph.push({
+      '@type': 'FAQPage',
+      '@id': `${articleUrl}#faq`,
+      mainEntity: faq.map((item) => ({
+        '@type': 'Question',
+        name: item.question,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: item.answer,
+        },
+      })),
+    });
+  }
+}
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': graph,
+};
+---
+
+<script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />

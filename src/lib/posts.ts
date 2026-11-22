@@ -47,15 +47,70 @@ export async function getPublishedPosts(): Promise<PostEntry[]> {
   );
 }
 
-export function estimateReadingTime(body: string | undefined): number {
-  if (!body) return 1;
-  const words = body
+export function countWords(body: string | undefined): number {
+  if (!body) return 0;
+  return body
     .replace(/```[\s\S]*?```/g, ' ')
     .replace(/<[^>]+>/g, ' ')
     .trim()
     .split(/\s+/)
     .filter(Boolean).length;
+}
+
+export function estimateReadingTime(body: string | undefined): number {
+  const words = countWords(body);
   return Math.max(1, Math.round(words / 200));
+}
+
+export function cleanMdxToMarkdown(body: string | undefined): string {
+  if (!body) return '';
+  return body
+    .replace(/^import\s.+?;?\s*$/gm, '')
+    .replace(
+      /<Callout(?:\s+title="([^"]*)")?>([\s\S]*?)<\/Callout>/g,
+      (_match, title: string | undefined, inner: string) => {
+        const heading = title ? `> **${title}**\n` : '';
+        const quoted = inner
+          .trim()
+          .split('\n')
+          .map((line) => `> ${line.trim()}`)
+          .join('\n');
+        return `${heading}${quoted}`;
+      },
+    )
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+export function getRelatedPosts(
+  allPosts: PostEntry[],
+  currentPost: PostEntry,
+  limit = 3,
+): PostEntry[] {
+  const currentSlug = getPostSlug(currentPost);
+  const currentTags = new Set(currentPost.data.tags);
+
+  return allPosts
+    .filter((p) => getPostSlug(p) !== currentSlug)
+    .map((candidate) => {
+      const sharedTags = candidate.data.tags.filter((t) =>
+        currentTags.has(t),
+      ).length;
+      const sameSeries =
+        currentPost.data.series &&
+        candidate.data.series?.name === currentPost.data.series.name
+          ? 2
+          : 0;
+      return { candidate, score: sharedTags + sameSeries };
+    })
+    .filter((entry) => entry.score > 0)
+    .sort(
+      (a, b) =>
+        b.score - a.score ||
+        b.candidate.data.pubDate.valueOf() - a.candidate.data.pubDate.valueOf(),
+    )
+    .slice(0, limit)
+    .map((entry) => entry.candidate);
 }
 
 export function formatDayShort(date: Date): string {

@@ -6,6 +6,9 @@ tags: ["rust", "distributed-systems", "valkey"]
 series:
   name: "Servidor MMORPG em Rust"
   order: 1
+faq:
+  - question: "Por que usar lock distribuído no Valkey na troca de nó?"
+    answer: "Para garantir que o nó de destino só carregue o estado do jogador no PostgreSQL depois do commit atômico do nó de origem, eliminando race conditions."
 draft: true
 ---
 

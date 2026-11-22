@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ScrollRail from '../components/ScrollRail.astro';
+import SeoJsonLd from '../components/SeoJsonLd.astro';
 import { SITE } from '../config';
 import { PROJECTS, STACK_GROUPS, TALKS } from '../data/projects';
 
@@ -24,6 +25,12 @@ const FILTER_OPTIONS = [
   description="Sistemas entregues em produção, laboratórios pessoais em Rust e stack principal de Guilherme Fontes."
   activeNav="projects"
 >
+  <SeoJsonLd
+    slot="head"
+    type="projects"
+    title={`Projetos — ${SITE.name}`}
+    description="Sistemas entregues em produção, laboratórios pessoais em Rust e stack principal de Guilherme Fontes."
+  />
   <main>
     <section class="intro">
       <h1>Projetos</h1>

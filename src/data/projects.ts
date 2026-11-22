@@ -208,7 +208,7 @@ export const PROJECTS: ProjectItem[] = [
   },
   {
     id: 'uauness-ambev',
-    name: 'Uauness (Ambev) · Marketplace & Conteúdo de Bem-Estar',
+    name: 'Ambev (Uauness) · Marketplace & Conteúdo de Bem-Estar',
     category: 'production',
     period: 'Iniciativa Ambev',
     context: 'E-commerce & Conteúdo',

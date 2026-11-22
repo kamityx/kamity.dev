@@ -1,0 +1,185 @@
+<div class="modal-backdrop hidden" id="search-modal">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Buscar artigos">
+    <div class="search-input-wrap">
+      <span style="font-family: var(--mono); color: var(--accent);">/</span>
+      <input
+        type="text"
+        id="search-input"
+        placeholder="Buscar por título, tag, mês ou assunto..."
+        autocomplete="off"
+      />
+      <span class="kbd">ESC</span>
+    </div>
+    <div class="search-results" id="search-results"></div>
+    <div class="modal-foot">
+      <span id="search-engine-label">Busca estática (Pagefind)</span>
+      <span>ESC para fechar</span>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (() => {
+    const modal = document.getElementById('search-modal');
+    const input = document.getElementById('search-input');
+    const resultsBox = document.getElementById('search-results');
+    const openBtn = document.getElementById('open-search-btn');
+    const engineLabel = document.getElementById('search-engine-label');
+
+    if (!modal || !input || !resultsBox) return;
+
+    let pagefind = null;
+    let fallbackIndex = null;
+    let initialized = false;
+
+    async function initSearch() {
+      if (initialized) return;
+      initialized = true;
+      try {
+        const pfUrl = '/pagefind/pagefind.js';
+        pagefind = await import(pfUrl);
+        await pagefind.init();
+        if (engineLabel) engineLabel.textContent = 'Busca full-text estática (Pagefind)';
+      } catch {
+        // Dev fallback when pagefind hasn't indexed dist/ yet
+        const res = await fetch('/search-index.json');
+        fallbackIndex = await res.json();
+        if (engineLabel) engineLabel.textContent = 'Busca local (modo dev)';
+      }
+    }
+
+    function renderEmpty(message) {
+      resultsBox.textContent = '';
+      const div = document.createElement('div');
+      div.className = 'sr-empty';
+      div.textContent = message;
+      resultsBox.appendChild(div);
+    }
+
+    function renderItems(items) {
+      resultsBox.textContent = '';
+      if (!items.length) {
+        renderEmpty('Nenhum artigo encontrado.');
+        return;
+      }
+      for (const item of items) {
+        const a = document.createElement('a');
+        a.className = 'sr-item';
+        a.href = item.url;
+
+        const title = document.createElement('div');
+        title.className = 'sr-title';
+        title.textContent = item.title;
+        a.appendChild(title);
+
+        if (item.excerptText) {
+          const ex = document.createElement('div');
+          ex.className = 'sr-excerpt';
+          ex.textContent = item.excerptText;
+          a.appendChild(ex);
+        }
+
+        if (item.meta) {
+          const meta = document.createElement('div');
+          meta.className = 'sr-meta';
+          meta.textContent = item.meta;
+          a.appendChild(meta);
+        }
+
+        resultsBox.appendChild(a);
+      }
+    }
+
+    async function runSearch(rawQuery) {
+      const q = rawQuery.trim();
+      await initSearch();
+
+      if (pagefind) {
+        if (!q) {
+          if (!fallbackIndex) {
+            const res = await fetch('/search-index.json');
+            fallbackIndex = await res.json();
+          }
+          renderItems(
+            fallbackIndex.slice(0, 8).map((p) => ({
+              url: p.url,
+              title: p.title,
+              meta: `${p.date} · ${p.tags.map((t) => '#' + t).join(' ')}`,
+            })),
+          );
+          return;
+        }
+
+        const search = await pagefind.search(q);
+        const top = await Promise.all(search.results.slice(0, 8).map((r) => r.data()));
+        renderItems(
+          top.map((d) => ({
+            url: d.url,
+            title: d.meta?.title || d.url,
+            excerptText: (d.excerpt || '').replace(/<[^>]+>/g, ''),
+            meta: d.meta?.date || '',
+          })),
+        );
+        return;
+      }
+
+      if (fallbackIndex) {
+        const lower = q.toLowerCase();
+        const matches = fallbackIndex.filter(
+          (p) =>
+            !lower ||
+            p.title.toLowerCase().includes(lower) ||
+            p.description.toLowerCase().includes(lower) ||
+            p.month.toLowerCase().includes(lower) ||
+            p.tags.some((t) => t.toLowerCase().includes(lower)),
+        );
+        renderItems(
+          matches.slice(0, 8).map((p) => ({
+            url: p.url,
+            title: p.title,
+            excerptText: p.description,
+            meta: `${p.date} · ${p.tags.map((t) => '#' + t).join(' ')}`,
+          })),
+        );
+      }
+    }
+
+    function openSearch() {
+      modal.classList.remove('hidden');
+      input.value = '';
+      runSearch('');
+      setTimeout(() => input.focus(), 20);
+    }
+
+    function closeSearch() {
+      modal.classList.add('hidden');
+    }
+
+    openBtn?.addEventListener('click', openSearch);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeSearch();
+    });
+
+    let debounceTimer;
+    input.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => runSearch(input.value), 120);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      const target = e.target;
+      const inField =
+        target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement;
+
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        openSearch();
+      } else if (e.key === '/' && !inField) {
+        e.preventDefault();
+        openSearch();
+      } else if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+        closeSearch();
+      }
+    });
+  })();
+</script>

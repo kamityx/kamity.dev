@@ -1,0 +1,19 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE } from '../config';
+---
+
+<BaseLayout title={`404 — ${SITE.name}`} description="Página não encontrada.">
+  <main style="padding: 48px 0;">
+    <p style="font-family: var(--mono); font-size: 13px; color: var(--accent); margin-bottom: 10px;">
+      404
+    </p>
+    <h1 style="font-family: var(--serif); font-size: 32px; font-weight: 500; margin-bottom: 14px;">
+      Página não encontrada
+    </h1>
+    <p style="color: var(--muted); margin-bottom: 24px;">
+      O endereço que você abriu não existe ou foi movido.
+    </p>
+    <a class="back-link" href="/">← voltar para os artigos</a>
+  </main>
+</BaseLayout>

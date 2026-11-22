@@ -1,0 +1,177 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { SITE } from '../../config';
+import {
+  estimateReadingTime,
+  formatFullDate,
+  getPostSlug,
+  getPublishedPosts,
+  getSeriesPosts,
+} from '../../lib/posts';
+
+export async function getStaticPaths() {
+  const posts = await getPublishedPosts();
+  return posts.map((post) => ({
+    params: { slug: getPostSlug(post) },
+    props: { post, allPosts: posts },
+  }));
+}
+
+const { post, allPosts } = Astro.props;
+const slug = getPostSlug(post);
+const { Content, headings } = await render(post);
+const readMin = estimateReadingTime(post.body);
+const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
+
+const seriesPosts = post.data.series
+  ? getSeriesPosts(allPosts, post.data.series.name)
+  : [];
+
+const linkedinHref = post.data.linkedinUrl ?? SITE.linkedin;
+---
+
+<BaseLayout
+  title={`${post.data.title} — ${SITE.name}`}
+  description={post.data.description}
+  ogImage={`/og/${slug}.png`}
+  ogType="article"
+  publishedTime={post.data.pubDate}
+  activeNav="home"
+  showProgress={true}
+>
+  <article data-pagefind-body>
+    <a class="back-link" href="/" data-pagefind-ignore>← voltar para artigos</a>
+
+    <header class="article-head">
+      {
+        post.data.series && (
+          <div class="series-banner" data-pagefind-ignore>
+            Série: {post.data.series.name} · Parte {post.data.series.order}
+            {seriesPosts.length > 1 ? ` de ${seriesPosts.length}` : ''}
+          </div>
+        )
+      }
+      <h1 data-pagefind-meta="title">{post.data.title}</h1>
+      <div class="article-sub" data-pagefind-ignore>
+        <time
+          datetime={post.data.pubDate.toISOString()}
+          data-pagefind-meta="date"
+        >
+          {formatFullDate(post.data.pubDate)}
+        </time>
+        <span>·</span>
+        <span>{readMin} min de leitura</span>
+        {
+          post.data.updatedDate && (
+            <>
+              <span>·</span>
+              <span>atualizado em {formatFullDate(post.data.updatedDate)}</span>
+            </>
+          )
+        }
+        {
+          post.data.tags.length > 0 && (
+            <>
+              <span>·</span>
+              <span>{post.data.tags.map((t) => `#${t}`).join(' ')}</span>
+            </>
+          )
+        }
+      </div>
+    </header>
+
+    {
+      tocHeadings.length >= 2 && (
+        <details class="toc-box" data-pagefind-ignore>
+          <summary>Índice do artigo ({tocHeadings.length} seções)</summary>
+          <ol>
+            {tocHeadings.map((h) => (
+              <li style={h.depth === 3 ? 'margin-left: 14px;' : ''}>
+                <a href={`#${h.slug}`}>{h.text}</a>
+              </li>
+            ))}
+          </ol>
+        </details>
+      )
+    }
+
+    <div class="prose">
+      <Content />
+    </div>
+
+    {
+      post.data.series && seriesPosts.length > 1 && (
+        <section class="series-nav" data-pagefind-ignore>
+          <div class="series-nav-title">
+            Nesta série · {post.data.series.name}
+          </div>
+          <ol>
+            {seriesPosts.map((item) => {
+              const itemSlug = getPostSlug(item);
+              const isCurrent = itemSlug === slug;
+              return (
+                <li class={isCurrent ? 'current-part' : ''}>
+                  {isCurrent ? (
+                    `${item.data.title} (você está aqui)`
+                  ) : (
+                    <a href={`/posts/${itemSlug}`}>{item.data.title}</a>
+                  )}
+                </li>
+              );
+            })}
+          </ol>
+        </section>
+      )
+    }
+
+    <footer class="article-footer" data-pagefind-ignore>
+      <span>Escrito por {SITE.shortAuthor}</span>
+      <a href={linkedinHref} target="_blank" rel="noopener noreferrer">
+        Discutir este post no LinkedIn →
+      </a>
+    </footer>
+  </article>
+</BaseLayout>
+
+<script is:inline>
+  (() => {
+    // Reading progress bar
+    const bar = document.getElementById('progress-bar');
+    if (bar) {
+      const updateBar = () => {
+        const h = document.documentElement;
+        const max = h.scrollHeight - h.clientHeight;
+        const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+        bar.style.width = `${Math.min(100, Math.max(0, pct))}%`;
+      };
+      window.addEventListener('scroll', updateBar, { passive: true });
+      updateBar();
+    }
+
+    // Wrap Shiki code blocks with copy button
+    document.querySelectorAll('.prose pre.astro-code').forEach((pre) => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'code-shell';
+      pre.parentNode?.insertBefore(wrapper, pre);
+      wrapper.appendChild(pre);
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'copy-code-btn';
+      btn.textContent = 'copiar';
+      btn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(pre.innerText);
+          btn.textContent = 'copiado';
+          setTimeout(() => {
+            btn.textContent = 'copiar';
+          }, 1500);
+        } catch {
+          btn.textContent = 'erro';
+        }
+      });
+      wrapper.appendChild(btn);
+    });
+  })();
+</script>

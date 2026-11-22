@@ -1,0 +1,190 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE } from '../config';
+import {
+  estimateReadingTime,
+  formatDayShort,
+  getAllTags,
+  getPostSlug,
+  getPublishedPosts,
+  groupPostsByMonth,
+} from '../lib/posts';
+
+const posts = await getPublishedPosts();
+const monthGroups = groupPostsByMonth(posts);
+const tags = getAllTags(posts);
+---
+
+<BaseLayout title={SITE.title} description={SITE.description} activeNav="home">
+  <main>
+    <section class="intro">
+      <h1>{SITE.shortAuthor}</h1>
+      <p>
+        Engenheiro de Software Sênior focado em sistemas distribuídos, arquitetura e baixa latência.
+        Escrevo aqui sobre trade-offs reais em Rust, TypeScript, PostgreSQL e infraestrutura.
+      </p>
+      <div class="social-links">
+        <a href={SITE.github} target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href={SITE.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
+      </div>
+    </section>
+
+    <div class="controls">
+      <div class="tag-strip" role="group" aria-label="Filtrar por tag">
+        <button type="button" class="tag-btn active" data-filter-tag="all">todos</button>
+        {
+          tags.map((tag) => (
+            <button type="button" class="tag-btn" data-filter-tag={tag}>
+              #{tag}
+            </button>
+          ))
+        }
+      </div>
+
+      <div class="density-toggle" role="group" aria-label="Densidade da lista">
+        <button type="button" id="btn-detailed" class="active">resumo</button>
+        <button type="button" id="btn-compact">arquivo</button>
+      </div>
+    </div>
+
+    {
+      monthGroups.length > 1 && (
+        <nav class="month-jump" id="month-jump" aria-label="Pular para mês">
+          <span class="month-jump-label">Ir para:</span>
+          {monthGroups.map((group) => (
+            <a href={`#mes-${group.key}`} data-jump-month={group.key}>
+              {group.monthLabel} {group.year} (
+              <span data-jump-count={group.key}>{group.posts.length}</span>)
+            </a>
+          ))}
+        </nav>
+      )
+    }
+
+    <div id="months-container">
+      {
+        monthGroups.map((group) => (
+          <section
+            class="month-group"
+            id={`mes-${group.key}`}
+            data-month-group={group.key}
+          >
+            <div class="month-header">
+              <h2 class="month-title">
+                {group.monthLabel}
+                <span>{group.year}</span>
+              </h2>
+              <span class="month-count" data-month-count={group.key}>
+                {group.posts.length}{' '}
+                {group.posts.length === 1 ? 'artigo' : 'artigos'}
+              </span>
+            </div>
+
+            <ul class="post-list">
+              {group.posts.map((post) => {
+                const slug = getPostSlug(post);
+                const readMin = estimateReadingTime(post.body);
+                return (
+                  <li
+                    class="post-item"
+                    data-post-tags={post.data.tags.join(',')}
+                  >
+                    <div class="post-day">{formatDayShort(post.data.pubDate)}</div>
+                    <div class="post-body">
+                      <a class="post-link" href={`/posts/${slug}`}>
+                        <h2>{post.data.title}</h2>
+                        <p class="post-summary">{post.data.description}</p>
+                      </a>
+                      <div class="post-foot">
+                        <span>{readMin} min</span>
+                        {post.data.draft && <span class="draft-pill">rascunho</span>}
+                        {post.data.series && (
+                          <>
+                            <span>·</span>
+                            <span class="series-pill">
+                              {post.data.series.name} · Parte {post.data.series.order}
+                            </span>
+                          </>
+                        )}
+                        {post.data.tags.length > 0 && (
+                          <>
+                            <span>·</span>
+                            <span>
+                              {post.data.tags.map((t) => `#${t}`).join(' ')}
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        ))
+      }
+    </div>
+  </main>
+</BaseLayout>
+
+<script is:inline>
+  (() => {
+    const container = document.getElementById('months-container');
+    const tagButtons = document.querySelectorAll('[data-filter-tag]');
+    const btnDetailed = document.getElementById('btn-detailed');
+    const btnCompact = document.getElementById('btn-compact');
+
+    function applyTagFilter(selectedTag) {
+      document.querySelectorAll('[data-month-group]').forEach((section) => {
+        const monthKey = section.getAttribute('data-month-group');
+        let visibleCount = 0;
+
+        section.querySelectorAll('.post-item').forEach((item) => {
+          const tags = (item.getAttribute('data-post-tags') || '')
+            .split(',')
+            .filter(Boolean);
+          const show = selectedTag === 'all' || tags.includes(selectedTag);
+          item.classList.toggle('hidden', !show);
+          if (show) visibleCount += 1;
+        });
+
+        section.classList.toggle('hidden', visibleCount === 0);
+
+        const countEl = section.querySelector(`[data-month-count="${monthKey}"]`);
+        if (countEl) {
+          countEl.textContent = `${visibleCount} ${visibleCount === 1 ? 'artigo' : 'artigos'}`;
+        }
+
+        const jumpLink = document.querySelector(`[data-jump-month="${monthKey}"]`);
+        if (jumpLink) {
+          jumpLink.classList.toggle('hidden', visibleCount === 0);
+          const jumpCount = jumpLink.querySelector(`[data-jump-count="${monthKey}"]`);
+          if (jumpCount) jumpCount.textContent = String(visibleCount);
+        }
+      });
+    }
+
+    tagButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        tagButtons.forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        applyTagFilter(btn.getAttribute('data-filter-tag') || 'all');
+      });
+    });
+
+    function setDensity(mode) {
+      if (!container) return;
+      container.classList.toggle('compact', mode === 'compact');
+      btnDetailed?.classList.toggle('active', mode === 'detailed');
+      btnCompact?.classList.toggle('active', mode === 'compact');
+      localStorage.setItem('kamity-density', mode);
+    }
+
+    const savedDensity = localStorage.getItem('kamity-density');
+    if (savedDensity === 'compact') setDensity('compact');
+
+    btnDetailed?.addEventListener('click', () => setDensity('detailed'));
+    btnCompact?.addEventListener('click', () => setDensity('compact'));
+  })();
+</script>

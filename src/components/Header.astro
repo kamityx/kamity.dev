@@ -1,0 +1,55 @@
+---
+interface Props {
+  activeNav?: 'home' | 'about';
+}
+
+const { activeNav = 'home' } = Astro.props;
+---
+
+<header class="site-header">
+  <a class="brand" href="/">kamity<span>.dev</span></a>
+  <nav aria-label="Navegação principal">
+    <a href="/" class={activeNav === 'home' ? 'active' : ''}>Artigos</a>
+    <a href="/sobre" class={activeNav === 'about' ? 'active' : ''}>Sobre</a>
+    <a href="/rss.xml">RSS</a>
+    <button
+      type="button"
+      class="search-trigger"
+      id="open-search-btn"
+      aria-label="Buscar artigos"
+    >
+      <span>buscar</span>
+      <span class="kbd">⌘K</span>
+    </button>
+    <button
+      type="button"
+      class="theme-btn"
+      id="theme-toggle-btn"
+      aria-label="Alternar tema claro e escuro"
+    >
+      dark
+    </button>
+  </nav>
+</header>
+
+<script is:inline>
+  (() => {
+    const btn = document.getElementById('theme-toggle-btn');
+    if (!btn) return;
+
+    const syncLabel = () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      btn.textContent = current === 'light' ? 'dark' : 'light';
+    };
+
+    syncLabel();
+
+    btn.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const next = current === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('kamity-theme', next);
+      syncLabel();
+    });
+  })();
+</script>

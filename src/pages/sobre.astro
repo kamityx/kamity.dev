@@ -1,0 +1,76 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE } from '../config';
+---
+
+<BaseLayout
+  title={`Sobre — ${SITE.name}`}
+  description={`Sobre ${SITE.author}: sistemas distribuídos, arquitetura e engenharia de software.`}
+  activeNav="about"
+>
+  <main class="about">
+    <h1>Sobre</h1>
+    <p>
+      Sou {SITE.author}, engenheiro de software sênior com mais de 7 anos de experiência
+      projetando e sustentando arquiteturas distribuídas de alta escala, ecossistemas de
+      e-commerce e infraestrutura logística crítica.
+    </p>
+    <p>
+      No dia a dia trabalho com microsserviços orientados a eventos em TypeScript e Node.js,
+      lidando com SLAs rígidos de latência, idempotência e consistência de dados. Em paralelo,
+      uso projetos pessoais em Rust como laboratório prático para aprofundar concorrência,
+      protocolos de rede, PostgreSQL e Valkey.
+    </p>
+    <p>
+      O <code>kamity.dev</code> é meu caderno aberto de engenharia: sem hype, sem publi e com foco
+      nos trade-offs reais que aparecem quando o código sai do slide e vai pra produção.
+    </p>
+
+    <section class="timeline" aria-label="Trajetória">
+      <div class="tl-item">
+        <div class="tl-year">2025 – atual</div>
+        <div>
+          <strong>Senior Software Engineer · Luizalabs (Magalog)</strong>
+          <span>
+            Arquitetura e desenvolvimento de microsserviços orientados a eventos para abertura da
+            malha logística para sellers externos, cotação de frete em tempo real e plugins de
+            integração.
+          </span>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-year">2024 – 2025</div>
+        <div>
+          <strong>Full Stack Developer · Keyrus</strong>
+          <span>
+            E-commerces enterprise, arquitetura modular e performance de checkout com React,
+            Next.js, FastStore, Node.js e GraphQL.
+          </span>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-year">2022 – 2024</div>
+        <div>
+          <strong>Tech Lead · Codeby</strong>
+          <span>
+            Liderança técnica de squads de e-commerce enterprise, governança de código e entrega do
+            projeto Mercafé (3 Corações).
+          </span>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-year">2021 – 2022</div>
+        <div>
+          <strong>Programador Web III · Maeztra</strong>
+          <span>
+            Integrações de catálogo, checkout customizado e APIs de logística em operações de grande
+            porte.
+          </span>
+        </div>
+      </div>
+    </section>
+  </main>
+</BaseLayout>

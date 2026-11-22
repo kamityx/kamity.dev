@@ -1,0 +1,57 @@
+media:
+  input: public/images
+  output: /images
+
+content:
+  - name: posts
+    label: Artigos
+    type: collection
+    path: src/content/posts
+    filename: "{year}-{month}-{day}-{primary}.mdx"
+    view:
+      fields: [title, pubDate, draft]
+      primary: title
+      sort: [pubDate]
+      default:
+        sort: pubDate
+        order: desc
+    fields:
+      - name: title
+        label: Título
+        type: string
+        required: true
+      - name: description
+        label: Resumo (1–2 linhas)
+        type: text
+        required: true
+      - name: pubDate
+        label: Data de publicação
+        type: date
+        required: true
+      - name: updatedDate
+        label: Atualizado em
+        type: date
+      - name: tags
+        label: Tags
+        type: string
+        list: true
+      - name: series
+        label: Série (opcional)
+        type: object
+        fields:
+          - name: name
+            label: Nome da série
+            type: string
+          - name: order
+            label: Parte nº
+            type: number
+      - name: linkedinUrl
+        label: Link do post no LinkedIn (opcional)
+        type: string
+      - name: draft
+        label: Rascunho (oculto em produção)
+        type: boolean
+        default: false
+      - name: body
+        label: Conteúdo
+        type: rich-text

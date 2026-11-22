@@ -5,5 +5,10 @@
   "assets": {
     "directory": "./dist",
     "not_found_handling": "404-page"
-  }
+  },
+  "routes": [
+    { "pattern": "kamity.dev", "custom_domain": true },
+    { "pattern": "www.kamity.dev", "custom_domain": true }
+  ],
+  "previews": {}
 }

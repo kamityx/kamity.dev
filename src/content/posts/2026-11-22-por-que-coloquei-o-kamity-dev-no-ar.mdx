@@ -27,8 +27,13 @@ Antes de escrever a primeira linha, pensei em subir um CMS completo com banco de
 
 A stack final ficou enxuta:
 
-```text
-MDX no Git  ->  Astro (SSG) + Pagefind (Rust)  ->  Cloudflare Edge ($0/mês)
+```mermaid
+flowchart LR
+  A["MDX no Git"] --> B["Astro SSG + Shiki"]
+  B --> C["Pagefind (Rust)"]
+  B --> D["OG Cards PNG (Satori)"]
+  C --> E["Cloudflare Workers Edge ($0/mês)"]
+  D --> E
 ```
 
 <Callout title="Trade-off escolhido">

@@ -1,6 +1,8 @@
 ---
 import { render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import MermaidEnhancer from '../../components/MermaidEnhancer.astro';
+import ScrollRail from '../../components/ScrollRail.astro';
 import { SITE } from '../../config';
 import {
   estimateReadingTime,
@@ -132,6 +134,9 @@ const linkedinHref = post.data.linkedinUrl ?? SITE.linkedin;
       </a>
     </footer>
   </article>
+
+  <MermaidEnhancer />
+  <ScrollRail />
 </BaseLayout>
 
 <script is:inline>
@@ -149,8 +154,10 @@ const linkedinHref = post.data.linkedinUrl ?? SITE.linkedin;
       updateBar();
     }
 
-    // Wrap Shiki code blocks with copy button
-    document.querySelectorAll('.prose pre.astro-code').forEach((pre) => {
+    // Wrap Shiki code blocks with copy button (skip mermaid blocks)
+    document
+      .querySelectorAll('.prose pre.astro-code:not([data-language="mermaid"])')
+      .forEach((pre) => {
       const wrapper = document.createElement('div');
       wrapper.className = 'code-shell';
       pre.parentNode?.insertBefore(wrapper, pre);

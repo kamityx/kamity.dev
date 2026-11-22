@@ -1,6 +1,6 @@
 ---
 interface Props {
-  activeNav?: 'home' | 'about';
+  activeNav?: 'home' | 'projects' | 'about';
 }
 
 const { activeNav = 'home' } = Astro.props;
@@ -10,6 +10,7 @@ const { activeNav = 'home' } = Astro.props;
   <a class="brand" href="/">kamity<span>.dev</span></a>
   <nav aria-label="Navegação principal">
     <a href="/" class={activeNav === 'home' ? 'active' : ''}>Artigos</a>
+    <a href="/projetos" class={activeNav === 'projects' ? 'active' : ''}>Projetos</a>
     <a href="/sobre" class={activeNav === 'about' ? 'active' : ''}>Sobre</a>
     <a href="/rss.xml">RSS</a>
     <button

@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { SITE } from '../config';
+import { TALKS } from '../data/projects';
 ---
 
 <BaseLayout
@@ -16,10 +17,10 @@ import { SITE } from '../config';
       e-commerce e infraestrutura logística crítica.
     </p>
     <p>
-      No dia a dia trabalho com microsserviços orientados a eventos em TypeScript e Node.js,
-      lidando com SLAs rígidos de latência, idempotência e consistência de dados. Em paralelo,
-      uso projetos pessoais em Rust como laboratório prático para aprofundar concorrência,
-      protocolos de rede, PostgreSQL e Valkey.
+      No dia a dia trabalho com microsserviços orientados a eventos em Java (Spring Boot e
+      Quarkus), TypeScript e Node.js, lidando com SLAs rígidos de latência, RabbitMQ, MongoDB,
+      idempotência e consistência de dados. Em paralelo, uso projetos pessoais em Rust como
+      laboratório prático para aprofundar concorrência, protocolos de rede, PostgreSQL e Valkey.
     </p>
     <p>
       O <code>kamity.dev</code> é meu caderno aberto de engenharia: sem hype, sem publi e com foco
@@ -42,10 +43,12 @@ import { SITE } from '../config';
       <div class="tl-item">
         <div class="tl-year">2024 – 2025</div>
         <div>
-          <strong>Full Stack Developer · Keyrus</strong>
+          <strong>Full Stack Developer · Keyrus (aquisição da Codeby)</strong>
           <span>
-            E-commerces enterprise, arquitetura modular e performance de checkout com React,
-            Next.js, FastStore, Node.js e GraphQL.
+            Continuidade após a aquisição da Codeby pela Keyrus, atuando em operações enterprise de
+            e-commerce e mobile: Sephora Brasil (Salesforce Commerce Cloud), checkout customizado da
+            Bemol (+16 mil vendas/semana) e o app Flutter da Cocatrel para controle de sacas de
+            café.
           </span>
         </div>
       </div>
@@ -55,8 +58,9 @@ import { SITE } from '../config';
         <div>
           <strong>Tech Lead · Codeby</strong>
           <span>
-            Liderança técnica de squads de e-commerce enterprise, governança de código e entrega do
-            projeto Mercafé (3 Corações).
+            Liderança técnica de squads de e-commerce enterprise, governança de código e entregas
+            como Mercafé (3 Corações), DUX Human Health, Frattina (vitrine oficial Rolex com Adobe
+            ADS) e Allos / Aliansce Sonae em VTEX, FastStore e Next.js.
           </span>
         </div>
       </div>
@@ -67,10 +71,64 @@ import { SITE } from '../config';
           <strong>Programador Web III · Maeztra</strong>
           <span>
             Integrações de catálogo, checkout customizado e APIs de logística em operações de grande
-            porte.
+            porte na plataforma VTEX IO com React e Node.js.
           </span>
         </div>
       </div>
+
+      <div class="tl-item">
+        <div class="tl-year">2018 – 2021</div>
+        <div>
+          <strong>Desenvolvedor de Software Web (Estagiário → Efetivado) · UNIGRAN</strong>
+          <span>
+            Desenvolvimento e sustentação do portal institucional e de sistemas acadêmicos internos
+            com PHP, PostgreSQL, JavaScript, React e Node.js.
+          </span>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-year">2017 – 2021</div>
+        <div>
+          <strong>Bacharelado em Engenharia de Software · UNIGRAN</strong>
+          <span>
+            Centro Universitário da Grande Dourados (Dourados, MS).
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <section class="timeline" aria-label="Palestras">
+      <div class="month-header" style="margin-bottom: 6px;">
+        <h2 class="month-title">
+          Palestras<span>eventos</span>
+        </h2>
+      </div>
+      {
+        TALKS.map((talk) => (
+          <div class="tl-item">
+            <div class="tl-year">{talk.year}</div>
+            <div>
+              <strong>
+                {talk.event} · {talk.stage}
+              </strong>
+              <span>
+                “{talk.title}”. {talk.summary}{' '}
+                {talk.url && (
+                  <a
+                    class="project-ext"
+                    href={talk.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {talk.urlLabel ?? 'ver mais'} ↗
+                  </a>
+                )}
+              </span>
+            </div>
+          </div>
+        ))
+      }
     </section>
   </main>
 </BaseLayout>

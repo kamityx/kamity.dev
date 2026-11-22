@@ -868,6 +868,437 @@ details.toc-box a:hover {
   justify-content: space-between;
 }
 
+/* Projects Page */
+.project-group {
+  margin-bottom: 48px;
+}
+
+.project-list {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.project-item {
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--border);
+}
+
+.project-item:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.project-meta {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.project-highlight {
+  color: var(--accent);
+}
+
+.project-company {
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-color: var(--border);
+  text-underline-offset: 3px;
+}
+
+.project-company:hover {
+  color: var(--accent);
+  text-decoration-color: var(--accent);
+}
+
+.project-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 2px;
+}
+
+.project-head h3 {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.project-ext {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: underline;
+  text-decoration-color: var(--border);
+  text-underline-offset: 4px;
+}
+
+.project-ext:hover {
+  color: var(--accent);
+  text-decoration-color: var(--accent);
+}
+
+.project-role {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.project-summary {
+  font-size: 15.2px;
+  color: var(--text);
+  line-height: 1.65;
+  margin-bottom: 10px;
+}
+
+.project-details {
+  margin: 0 0 14px 18px;
+  color: var(--muted);
+  font-size: 14.5px;
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.project-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.project-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.stack-chip {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.project-post-link {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.stack-overview {
+  margin-top: 12px;
+}
+
+.stack-table {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.stack-row {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 16px;
+  font-size: 14.5px;
+  align-items: baseline;
+}
+
+.stack-label {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.stack-items {
+  color: var(--text);
+  line-height: 1.6;
+}
+
+/* Mermaid Diagrams + Fullscreen Zoom Modal */
+.mermaid-figure {
+  margin: 28px 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.mermaid-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.mermaid-expand-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.mermaid-expand-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.mermaid-canvas {
+  padding: 22px 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-x: auto;
+  cursor: zoom-in;
+  min-height: 90px;
+}
+
+.mermaid-canvas:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.mermaid-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  background: rgba(8, 9, 11, 0.78);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.mermaid-modal-panel {
+  width: min(96vw, 1440px);
+  height: 92vh;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.45);
+}
+
+.mermaid-modal-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.mermaid-modal-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mermaid-modal-controls button {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.mermaid-modal-controls button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.mm-zoom-value {
+  min-width: 48px;
+  text-align: center;
+  color: var(--text);
+}
+
+.mm-close-btn {
+  margin-left: 6px;
+}
+
+.mermaid-modal-stage {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  background-image: radial-gradient(var(--border) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.mermaid-modal-stage.is-dragging {
+  cursor: grabbing;
+}
+
+.mermaid-modal-transform {
+  transform-origin: center center;
+  will-change: transform;
+}
+
+/* Minimalist Scroll-Spy Rail (Desktop Margin) */
+.scroll-rail {
+  position: fixed;
+  right: max(18px, calc((100vw - 720px) / 2 - 220px));
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 40;
+  pointer-events: auto;
+}
+
+.scroll-rail-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.rail-entry {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.rail-major {
+  margin-top: 8px;
+}
+
+.rail-major:first-child {
+  margin-top: 0;
+}
+
+.rail-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 2px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.rail-label {
+  opacity: 0;
+  transform: translateX(6px);
+  transition: opacity 0.18s ease, transform 0.18s ease, color 0.15s ease;
+  white-space: nowrap;
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+
+/* Reveal labels cleanly when hovering the rail */
+.scroll-rail:hover .rail-label {
+  opacity: 0.72;
+  transform: translateX(0);
+}
+
+.rail-btn:hover .rail-label,
+.rail-btn.active .rail-label {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Keep the currently active label subtly visible only while hovering the rail,
+   or highlight the tick cleanly at rest for true minimalism */
+.scroll-rail:not(:hover) .rail-btn.active .rail-label {
+  opacity: 0;
+  transform: translateX(6px);
+}
+
+.rail-btn.active .rail-label {
+  color: var(--accent);
+}
+
+.rail-tick {
+  display: block;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--border);
+  transition: width 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.rail-major .rail-tick {
+  width: 16px;
+  background: var(--muted);
+  opacity: 0.55;
+}
+
+.rail-minor .rail-tick {
+  width: 10px;
+  background: var(--muted);
+  opacity: 0.32;
+}
+
+.rail-btn:hover .rail-tick {
+  width: 22px;
+  background: var(--text);
+  opacity: 0.85;
+}
+
+.rail-btn.active .rail-tick {
+  width: 26px;
+  background: var(--accent);
+  opacity: 1;
+}
+
+[data-rail-label],
+.prose h2,
+.prose h3 {
+  scroll-margin-top: 28px;
+}
+
+@media (max-width: 1140px) {
+  .scroll-rail {
+    display: none;
+  }
+}
+
 /* Site Footer */
 footer.site-footer {
   margin-top: 64px;
@@ -899,7 +1330,8 @@ footer.site-footer a:hover {
     grid-template-columns: 1fr;
     gap: 2px;
   }
-  .tl-item {
+  .tl-item,
+  .stack-row {
     grid-template-columns: 1fr;
     gap: 2px;
   }

@@ -1,0 +1,338 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ScrollRail from '../components/ScrollRail.astro';
+import { SITE } from '../config';
+import { PROJECTS, STACK_GROUPS, TALKS } from '../data/projects';
+
+const productionProjects = PROJECTS.filter((p) => p.category === 'production');
+const personalProjects = PROJECTS.filter((p) => p.category === 'personal');
+
+const FILTER_OPTIONS = [
+  { id: 'all', label: 'todos' },
+  { id: 'arquitetura', label: 'arquitetura' },
+  { id: 'java', label: 'java' },
+  { id: 'typescript', label: 'typescript' },
+  { id: 'rust', label: 'rust' },
+  { id: 'mobile', label: 'mobile' },
+  { id: 'dados', label: 'dados' },
+  { id: 'cloud', label: 'cloud' },
+] as const;
+---
+
+<BaseLayout
+  title={`Projetos — ${SITE.name}`}
+  description="Sistemas entregues em produção, laboratórios pessoais em Rust e stack principal de Guilherme Fontes."
+  activeNav="projects"
+>
+  <main>
+    <section class="intro">
+      <h1>Projetos</h1>
+      <p>
+        Recorte do que já ajudei a arquitetar e entregar em produção, junto dos projetos pessoais
+        que uso para estudar baixa latência, sistemas distribuídos e infraestrutura.
+      </p>
+    </section>
+
+    <div class="controls" style="margin-bottom: 32px;">
+      <div class="tag-strip" role="group" aria-label="Filtrar projetos por tema">
+        {
+          FILTER_OPTIONS.map((opt, idx) => (
+            <button
+              type="button"
+              class={`tag-btn ${idx === 0 ? 'active' : ''}`}
+              data-project-filter={opt.id}
+            >
+              {opt.id === 'all' ? opt.label : `#${opt.label}`}
+            </button>
+          ))
+        }
+      </div>
+    </div>
+
+    <section
+      class="project-group"
+      id="secao-producao"
+      data-project-group="production"
+    >
+      <div
+        class="month-header"
+        id="rail-producao"
+        data-rail-label="Entregas em produção"
+        data-rail-level="major"
+      >
+        <h2 class="month-title">
+          Entregas em produção<span>carreira</span>
+        </h2>
+        <span class="month-count" data-group-count="production">
+          {productionProjects.length} projetos
+        </span>
+      </div>
+
+      <div class="project-list">
+        {
+          productionProjects.map((project) => (
+            <article
+              class="project-item"
+              id={`proj-${project.id}`}
+              data-project-tags={project.filterTags.join(',')}
+              data-rail-label={project.name.split(' · ')[0]}
+              data-rail-level="minor"
+            >
+              <div class="project-meta">
+                <span>{project.period}</span>
+                <span>·</span>
+                {project.contextUrl ? (
+                  <a
+                    class="project-company"
+                    href={project.contextUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {project.context}
+                  </a>
+                ) : (
+                  <span>{project.context}</span>
+                )}
+                <span>·</span>
+                <span class="project-highlight">{project.highlight}</span>
+              </div>
+
+              <div class="project-head">
+                <h3>{project.name}</h3>
+                {project.url && (
+                  <a
+                    class="project-ext"
+                    href={project.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {project.urlLabel ?? 'ver projeto'} ↗
+                  </a>
+                )}
+              </div>
+
+              <p class="project-role">{project.role}</p>
+              <p class="project-summary">{project.summary}</p>
+
+              <ul class="project-details">
+                {project.details.map((detail) => (
+                  <li>{detail}</li>
+                ))}
+              </ul>
+
+              <div class="project-stack">
+                {project.stack.map((tech) => (
+                  <span class="stack-chip">{tech}</span>
+                ))}
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+
+    <section
+      class="project-group"
+      id="secao-pessoais"
+      data-project-group="personal"
+    >
+      <div
+        class="month-header"
+        id="rail-pessoais"
+        data-rail-label="Laboratório & pessoais"
+        data-rail-level="major"
+      >
+        <h2 class="month-title">
+          Laboratório &amp; projetos pessoais<span>open &amp; estudos</span>
+        </h2>
+        <span class="month-count" data-group-count="personal">
+          {personalProjects.length} projetos
+        </span>
+      </div>
+
+      <div class="project-list">
+        {
+          personalProjects.map((project) => (
+            <article
+              class="project-item"
+              id={`proj-${project.id}`}
+              data-project-tags={project.filterTags.join(',')}
+              data-rail-label={project.name.split(' · ')[0]}
+              data-rail-level="minor"
+            >
+              <div class="project-meta">
+                <span>{project.period}</span>
+                <span>·</span>
+                {project.contextUrl ? (
+                  <a
+                    class="project-company"
+                    href={project.contextUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {project.context}
+                  </a>
+                ) : (
+                  <span>{project.context}</span>
+                )}
+                <span>·</span>
+                <span class="project-highlight">{project.highlight}</span>
+              </div>
+
+              <div class="project-head">
+                <h3>{project.name}</h3>
+                {project.url && (
+                  <a
+                    class="project-ext"
+                    href={project.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {project.urlLabel ?? 'repositório'} ↗
+                  </a>
+                )}
+              </div>
+
+              <p class="project-role">{project.role}</p>
+              <p class="project-summary">{project.summary}</p>
+
+              <ul class="project-details">
+                {project.details.map((detail) => (
+                  <li>{detail}</li>
+                ))}
+              </ul>
+
+              <div class="project-bottom">
+                <div class="project-stack">
+                  {project.stack.map((tech) => (
+                    <span class="stack-chip">{tech}</span>
+                  ))}
+                </div>
+                {project.relatedPostSlug && (
+                  <a
+                    class="project-post-link"
+                    href={`/posts/${project.relatedPostSlug}`}
+                  >
+                    Ler artigo relacionado →
+                  </a>
+                )}
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="project-group" id="secao-palestras" aria-label="Palestras">
+      <div
+        class="month-header"
+        id="rail-palestras"
+        data-rail-label="Palestras"
+        data-rail-level="major"
+      >
+        <h2 class="month-title">
+          Palestras<span>comunidade &amp; eventos</span>
+        </h2>
+        <span class="month-count">
+          {TALKS.length} {TALKS.length === 1 ? 'palestra' : 'palestras'}
+        </span>
+      </div>
+
+      <div class="project-list">
+        {
+          TALKS.map((talk) => (
+            <article class="project-item">
+              <div class="project-meta">
+                <span>{talk.year}</span>
+                <span>·</span>
+                <span>{talk.event}</span>
+                <span>·</span>
+                <span class="project-highlight">{talk.stage}</span>
+              </div>
+
+              <div class="project-head">
+                <h3>{talk.title}</h3>
+                {talk.url && (
+                  <a
+                    class="project-ext"
+                    href={talk.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {talk.urlLabel ?? 'ver mais'} ↗
+                  </a>
+                )}
+              </div>
+
+              <p class="project-summary">{talk.summary}</p>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+
+    <section
+      class="stack-overview"
+      id="secao-stack"
+      aria-label="Principais tecnologias e domínios"
+    >
+      <div
+        class="month-header"
+        id="rail-stack"
+        data-rail-label="Stack principal"
+        data-rail-level="major"
+      >
+        <h2 class="month-title">
+          Stack principal<span>ferramentas do dia a dia</span>
+        </h2>
+      </div>
+      <div class="stack-table">
+        {
+          STACK_GROUPS.map((group) => (
+            <div class="stack-row">
+              <div class="stack-label">{group.label}</div>
+              <div class="stack-items">{group.items}</div>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+  </main>
+
+  <ScrollRail />
+</BaseLayout>
+
+<script is:inline>
+  (() => {
+    const buttons = document.querySelectorAll('[data-project-filter]');
+    const groups = document.querySelectorAll('[data-project-group]');
+
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const selected = btn.getAttribute('data-project-filter') || 'all';
+        buttons.forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        groups.forEach((group) => {
+          const key = group.getAttribute('data-project-group');
+          let visible = 0;
+
+          group.querySelectorAll('.project-item').forEach((item) => {
+            const tags = (item.getAttribute('data-project-tags') || '')
+              .split(',')
+              .filter(Boolean);
+            const show = selected === 'all' || tags.includes(selected);
+            item.classList.toggle('hidden', !show);
+            if (show) visible += 1;
+          });
+
+          group.classList.toggle('hidden', visible === 0);
+          const countEl = group.querySelector(`[data-group-count="${key}"]`);
+          if (countEl) {
+            countEl.textContent = `${visible} ${visible === 1 ? 'projeto' : 'projetos'}`;
+          }
+        });
+      });
+    });
+  })();
+</script>
